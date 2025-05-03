@@ -1,6 +1,5 @@
 const express = require("express");
 const router = require("./routes/indexRouter");
-const sessionConfig = require("./config/sessionConfig");
 const passport = require("passport");
 const bodyParser = require("body-parser");
 const path = require("path");
@@ -11,9 +10,7 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(sessionConfig());
 app.use(passport.initialize());
-app.use(passport.session());
 require("./config/passportConfig");
 
 //Server

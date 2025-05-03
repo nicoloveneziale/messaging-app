@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { generateToken } from "../config/passportConfig";
 import bcrypt from "bcryptjs";
 import { createUser } from "../db/userQueries";
+import { createProfile } from "../db/profileQueries";
 
 export const loginController = (req: Request, res: Response) => {
   if (req.user) {
@@ -27,6 +28,8 @@ export const registerUserController = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     //add user details to db
     const newUser = await createUser(username, email, password);
+    //create a profile for the new user
+    const newProfile = await createProfile(newUser.id);
     //token generation for immidiate login
     const token = generateToken(newUser);
 
