@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
@@ -17,6 +16,26 @@ export const findUserById = async (id: number) => {
     return await prisma.user.findUnique({ where: { id } });
   } catch (error) {
     console.log("Error finding user by id: ", error);
+    throw error;
+  }
+};
+
+export const createUser = async (
+  username: string,
+  email: string,
+  password: string,
+) => {
+  try {
+    const newUser = await prisma.user.create({
+      data: {
+        username,
+        email,
+        password,
+      },
+    });
+    return newUser;
+  } catch (error: any) {
+    console.log("Error creating user: ", error);
     throw error;
   }
 };

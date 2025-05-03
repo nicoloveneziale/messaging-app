@@ -3,6 +3,7 @@ import passport from "../config/passportConfig";
 import {
   loginController,
   protectedRouteController,
+  registerUserController,
 } from "../controllers/authController";
 
 const router = express.Router();
@@ -17,5 +18,6 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   protectedRouteController,
 );
+router.post("/register", registerUserController);
 
 export default router;
