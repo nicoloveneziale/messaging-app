@@ -27,3 +27,26 @@ export const getProfile = async (profileId: number) => {
     throw error;
   }
 };
+
+export const updateProfile = async (
+  profileId: number,
+  bio: string | undefined,
+  avatarUrl: string | undefined,
+) => {
+  try {
+    const profile = await prisma.profile.update({
+      where: {
+        id: profileId,
+      },
+      data: {
+        bio: bio,
+        avatarUrl: avatarUrl,
+        updatedAt: new Date(),
+      },
+    });
+    return profile;
+  } catch (error: any) {
+    console.error("Error updating profile:", error);
+    throw error;
+  }
+};
