@@ -9,6 +9,6 @@ router.get("/", (req: Request, res: Response): void => {
 });
 
 router.use("/auth", authRoutes);
-router.use("/profile", profileRoutes);
+router.use("/profiles", profileRoutes);
 
 export default router;

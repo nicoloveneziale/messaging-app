@@ -11,7 +11,9 @@ export const loginController = (
 ): void => {
   if (req.user) {
     const token = generateToken(req.user);
-    res.status(200).json({ message: "Login successful", token: token });
+    res
+      .status(200)
+      .json({ message: "Login successful", token: token, user: req.user });
   }
 };
 
