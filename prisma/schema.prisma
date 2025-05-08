@@ -3,23 +3,24 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" 
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  username  String   @unique
-  password  String
-  profile   Profile? @relation(fields: [profileId], references: [id], name: "UserProfile")
-  profileId Int?     @unique
+  id              Int                @id @default(autoincrement())
+  email           String             @unique
+  username        String             @unique
+  password        String
+  profile         Profile?           @relation(fields: [profileId], references: [id], name: "UserProfile")
+  profileId       Int?               @unique
 
-  sentMessages   Message[] @relation("Sender")
-  receivedMessages Message[] @relation("Recipient")
+  sentMessages    Message[]          @relation("Sender")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  conversations   UserConversation[]
+
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
 }
 
 model Profile {
@@ -33,15 +34,49 @@ model Profile {
   updatedAt DateTime @updatedAt
 }
 
+model Conversation {
+  id            Int       @id @default(autoincrement())
+  name          String?   
+  isGroupChat   Boolean   @default(false) 
+
+  messages      Message[] 
+
+  participants  UserConversation[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt 
+
+  lastMessageId Int?      @unique
+  lastMessage   Message?  @relation("LastConversationMessage", fields: [lastMessageId], references: [id])
+
+  @@index([lastMessageId]) 
+}
+
+model UserConversation {
+  userId          Int
+  conversationId  Int
+  user            User         @relation(fields: [userId], references: [id])
+  conversation    Conversation @relation(fields: [conversationId], references: [id])
+
+  joinedAt        DateTime     @default(now())
+  lastReadAt      DateTime?    
+
+  @@id([userId, conversationId]) 
+}
+
 model Message {
-  id        Int      @id @default(autoincrement())
-  content   String
-  sender    User     @relation("Sender", fields: [senderId], references: [id])
-  senderId  Int
-  recipient User     @relation("Recipient", fields: [recipientId], references: [id])
-  recipientId Int
-  createdAt DateTime @default(now())
+  id             Int          @id @default(autoincrement())
+  content        String
+  sender         User         @relation("Sender", fields: [senderId], references: [id])
+  senderId       Int
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  conversationId Int
+
+  createdAt      DateTime     @default(now())
+
+  isLastMessageFor Conversation? @relation("LastConversationMessage")
 
   @@index([senderId])
-  @@index([recipientId])
+  @@index([conversationId]) 
 }
