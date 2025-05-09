@@ -9,12 +9,12 @@ export const getConversationByUsers = async (participantIds: number[]) => {
       "getConversationByUsers requires exactly two participant IDs for a DM.",
     );
   }
-
+  
   const [userId1, userId2] = participantIds;
 
   const conversation = await prisma.conversation.findFirst({
     where: {
-      isGroupchat: false,
+      isGroupChat: false,
       participants: {
         every: {
           userId: { in: [userId1, userId2] },
@@ -36,8 +36,36 @@ export const getConversationByUsers = async (participantIds: number[]) => {
   return null;
 };
 
+
+//Initially creates a conversation and returns user information
 export const createConversation = async (
   participantIds: number[],
   isGroupChat: boolean,
   name?: string,
-) => {};
+) => {
+  return prisma.conversation.create({
+    data: {
+      name: name,
+      isGroupChat: isGroupChat,
+      participants: {
+        create: participantIds.map((userId) => ({
+          user: {
+            connect: {id: userId}
+          }
+        }))
+      }
+    },
+    include: {
+      participants: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true
+            }
+          }
+        }
+      }
+    }
+  })
+};

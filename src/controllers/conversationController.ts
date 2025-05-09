@@ -18,19 +18,19 @@ export const createConversationController = async (
 
   //Checks if user creating the conversation is authorised
   if (!authenticatedUserId) {
-    res.status(401).json({ message: "User not authenticated." });
+    res.status(401).json({ message: "User not authenticated" });
   }
 
   //Checks that there are users provided
   if (participantIds.length === 0) {
     res
       .status(400)
-      .json({ message: "participantIds must be a non-empty array." });
+      .json({ message: "participantIds must be a non-empty array" });
   }
 
   //Checks that the group is named
   if (isGroupChat && !name) {
-    res.status(400).json({ message: "Group chat requires a name." });
+    res.status(400).json({ message: "Group chat requires a name" });
   }
 
   if (!isGroupChat) {
@@ -38,14 +38,14 @@ export const createConversationController = async (
     if (participantIds.length !== 2) {
       res.status(400).json({
         message:
-          "Direct message must have exactly two participants (including yourself).",
+          "Direct message must have exactly two participants (including yourself)",
       });
     }
     //Users cant dm themselves
     if (participantIds[0] === participantIds[1]) {
       res
         .status(400)
-        .json({ message: "Cannot create a direct message with yourself." });
+        .json({ message: "Cannot create a direct message with yourself" });
     }
     return;
   }
@@ -56,7 +56,7 @@ export const createConversationController = async (
       const existingConversation = await getConversationByUsers(participantIds);
       if (existingConversation) {
         res.status(200).json({
-          message: "Direct message conversation already exists.",
+          message: "Direct message conversation already exists",
           conversation: existingConversation,
         });
         return;
@@ -65,12 +65,13 @@ export const createConversationController = async (
       console.error("Error checking for existing conversation:", error);
       res.status(500).json({
         message:
-          "Internal server error while checking for existing conversation.",
+          "Internal server error while checking for existing conversation",
       });
       return;
     }
   }
 
+  //Create amd return conversation
   try {
     const conversation = await createConversation(
       participantIds,
@@ -82,5 +83,28 @@ export const createConversationController = async (
   } catch (error) {
     console.error("Error creating conversation:", error);
     throw error;
+  }
+};
+
+//Gets all conversations for current user
+export const getAllConversationsController = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  const authenticatedUserId = req.userId;
+
+  if (!authenticatedUserId) {
+    res.status(401).json({ message: "User not authenticated." });
+    return; 
+  }
+  
+  try {
+    const conversations = await getAllConversationsForUser(authenticatedUserId);
+
+    res.json({ conversations: conversations });
+  } catch (error) {
+    console.error("Error fetching conversations for user:", error); 
+    next(error);
   }
 };
