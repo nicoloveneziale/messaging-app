@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import {
   getConversationByUsers,
   createConversation,
+  getAllConversations
 } from "../db/conversationQueries";
 
 interface AuthenticatedRequest extends Request {
@@ -100,7 +101,7 @@ export const getAllConversationsController = async (
   }
   
   try {
-    const conversations = await getAllConversationsForUser(authenticatedUserId);
+    const conversations = await getAllConversations(authenticatedUserId);
 
     res.json({ conversations: conversations });
   } catch (error) {

@@ -69,3 +69,43 @@ export const createConversation = async (
     }
   })
 };
+
+//Gets all the conversations for user
+export const getAllConversations = async (userId: number) => {
+  return prisma.conversation.findMany({
+    where: {
+      participants: {
+        some: {
+          userId: userId
+        }
+      }
+    },
+    include: {
+      lastMessage: {
+        select: {
+          content: true,
+          createdAt: true,
+          sender: {
+            select: {username: true}
+          }
+        }
+      },
+      participants: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              profile: {
+                select: {avatarUrl: true}
+              }
+            }
+          }
+        }
+      }
+    },
+    orderBy: {
+      updatedAt: "desc"
+    }
+  })
+}
