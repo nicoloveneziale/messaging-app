@@ -2,7 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import {
   getConversationByUsers,
   createConversation,
-  getAllConversations
+  getAllConversations,
+  getConversationMessages
 } from "../db/conversationQueries";
 
 interface AuthenticatedRequest extends Request {
@@ -109,3 +110,26 @@ export const getAllConversationsController = async (
     next(error);
   }
 };
+
+//Gets all messages for a conversation
+export const getConversationMessagesController = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  const authenticatedUserId = req.userId;
+  const conversationId = parseInt(req.params.id);
+
+  if (!authenticatedUserId) {
+    res.status(401).json({ message: "User not authenticated." });
+    return; 
+  }
+
+  try {
+    const messages = await getConversationMessages(conversationId, authenticatedUserId);
+    res.json({ messages: messages });
+  } catch (error) {
+    console.error("Error fetching messages for conversation:", error); 
+    next(error);
+  }
+}

@@ -109,3 +109,33 @@ export const getAllConversations = async (userId: number) => {
     }
   })
 }
+
+//Gets all messages for a conversation
+export const getConversationMessages = async (conversationId: number, authenticatedUserId: number) => {
+  return prisma.message.findMany({
+    where: {
+      conversationId: conversationId,
+      conversation: {
+        participants: {
+          some: {
+            userId: authenticatedUserId
+          }
+        }
+      }
+    },
+    include: {
+      sender: {
+        select: {
+          id: true,
+          username: true,
+          profile: {
+            select: {avatarUrl: true}
+          }
+        }
+      }
+    },
+    orderBy: {
+      createdAt: "asc"
+    }
+  })
+}
