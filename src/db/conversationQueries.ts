@@ -197,3 +197,12 @@ export const getMessage = async (messageId: number) => {
     }
   })
 }
+
+//Deletes a conversation 
+export const deleteConversation = async (conversationId: number) => {
+  return prisma.conversation.delete({
+    where: {
+      id: conversationId
+    }
+  })
+}

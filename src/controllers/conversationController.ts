@@ -8,6 +8,7 @@ import {
   isUserParticipant,
   deleteMessage,
   getMessage,
+  deleteConversation,
 } from "../db/conversationQueries";
 
 interface AuthenticatedRequest extends Request {
@@ -192,9 +193,35 @@ export const deleteMessageController = async(req: AuthenticatedRequest, res: Res
     } 
 
     const deletedMessage = await deleteMessage(messageId);
-    res.status(200).json({ message: deletedMessage });
+    res.status(204).send();
   } catch (error) {
     console.log("Error deleting message:", error);
     next(error)
   }
+}
+
+//Deletes a conversation
+export const deleteConversationController = async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  const authenticatedUserId = req.userId;
+  const conversationId = parseInt(req.params.id);
+
+  if (!authenticatedUserId) {
+    res.status(401).json({ message: "User not authenticated." });
+    return; 
+  }
+
+  try {
+    const isParticipant = await isUserParticipant(authenticatedUserId, conversationId);
+    if (!isParticipant) {
+      res.status(403).json({ message: "Forbidden - User is not a participant in the conversation" });
+      return; 
+    } 
+
+    const deletedConversation = await deleteConversation(conversationId);
+    res.status(204).send()
+  } catch (error)  {
+    console.error("Error deleting conversation:", error); 
+    next(error)
+  }
+
 }
