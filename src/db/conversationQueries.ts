@@ -139,3 +139,61 @@ export const getConversationMessages = async (conversationId: number, authentica
     }
   })
 }
+
+//Checks if a user is a participant of a conversation
+export const isUserParticipant = async (userId: number, conversationId: number) => {
+  const conversation = await prisma.conversation.findUnique({
+    where: {
+      id: conversationId
+    },
+    include: {
+      participants: {
+        where: {
+          userId: userId
+        }
+      }
+    }
+  });
+
+  return conversation && conversation.participants.length > 0;
+}
+
+//Creates a message in a conversation 
+export const sendMessage = async (conversationId: number, senderId: number, content: string) => {
+  return prisma.message.create({
+    data: {
+      conversationId: conversationId,
+      content: content,
+      senderId: senderId
+    },
+    include: {
+      sender: {
+        select: {
+          id: true,
+          username: true,
+          profile: {
+            select: {avatarUrl: true}
+          }
+        }
+      }
+    }
+  })
+}
+
+//Deletes a message in a conversation
+export const deleteMessage = async (messageId: number) => {
+  return prisma.message.delete({
+    where: {
+      id: messageId
+    }
+  })
+}
+
+//Gets a message by id
+export const getMessage = async (messageId: number) => {
+  return prisma.message.findUnique({
+    where: {
+      id: messageId
+    }
+  })
+}

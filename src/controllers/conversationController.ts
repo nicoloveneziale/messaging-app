@@ -3,7 +3,11 @@ import {
   getConversationByUsers,
   createConversation,
   getAllConversations,
-  getConversationMessages
+  getConversationMessages,
+  sendMessage,
+  isUserParticipant,
+  deleteMessage,
+  getMessage,
 } from "../db/conversationQueries";
 
 interface AuthenticatedRequest extends Request {
@@ -150,7 +154,7 @@ export const sendMessageController = async (
   }
 
   try {
-    const isParticipant = await isUserParicipant(authenticatedUserId, conversationId);
+    const isParticipant = await isUserParticipant(authenticatedUserId, conversationId);
     if (!isParticipant) {
       res.status(403).json({ message: "Forbidden - User is not a participant in the conversation" });
       return; 
@@ -161,5 +165,36 @@ export const sendMessageController = async (
   } catch (error) {
     console.error("Error sending message:", error); 
     next(error);
+  }
+}
+
+//Deletes a message in a conversation
+export const deleteMessageController = async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  const authenticatedUserId = req.userId;
+  const conversationId = parseInt(req.params.id);
+  const messageId = parseInt(req.params.messageId);
+
+  if (!authenticatedUserId) {
+    res.status(401).json({ message: "User not authenticated." });
+    return; 
+  }
+  try {
+    const message = await getMessage(messageId);
+
+    if (!message) {
+      res.status(404).json({message: "Message not found"});
+      return;
+    }
+
+    if (message.senderId !== authenticatedUserId) {
+      res.status(403).json({ message: "Forbidden - User is not the sender of the message" });
+      return; 
+    } 
+
+    const deletedMessage = await deleteMessage(messageId);
+    res.status(200).json({ message: deletedMessage });
+  } catch (error) {
+    console.log("Error deleting message:", error);
+    next(error)
   }
 }
