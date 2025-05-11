@@ -133,3 +133,33 @@ export const getConversationMessagesController = async (
     next(error);
   }
 }
+
+//Sends a message in a conversation
+export const sendMessageController = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  const authenticatedUserId = req.userId;
+  const conversationId = parseInt(req.params.id);
+  const {content} = req.body;
+
+  if (!authenticatedUserId) {
+    res.status(401).json({ message: "User not authenticated." });
+    return; 
+  }
+
+  try {
+    const isParticipant = await isUserParicipant(authenticatedUserId, conversationId);
+    if (!isParticipant) {
+      res.status(403).json({ message: "Forbidden - User is not a participant in the conversation" });
+      return; 
+    } 
+
+    const message = await sendMessage(conversationId, authenticatedUserId, content);
+    res.status(201).json({ message: message });
+  } catch (error) {
+    console.error("Error sending message:", error); 
+    next(error);
+  }
+}

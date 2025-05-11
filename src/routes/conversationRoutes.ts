@@ -4,8 +4,17 @@ import { createConversationController, getAllConversationsController, getConvers
 
 const router = express.Router();
 
+//Crate a new conversation
 router.post("/", authenticate, createConversationController);
+//Delete a conversation
+router.delete("/:id", authenticate, deleteConversationController);
+//Get all conversations for the current user
 router.get("/", authenticate, getAllConversationsController);
+//Get all messages for a conversation
 router.get("/:id/messages", authenticate,getConversationMessagesController);
+//Create a new message in a conversation
+router.post("/:id/messages", authenticate, sendMessageController);
+//Delete a message in a conversation
+router.delete("/:id/messages/:messageId", authenticate, deleteMessageController)
 
 export default router;
