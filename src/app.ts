@@ -8,7 +8,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import "./config/passportConfig";
 
-import initisalizeSocketIO from "./socket/socketEvents"
+import {initializeSocketIO} from "./socket/socketEvents"
 
 //Express setup
 const app = express();
