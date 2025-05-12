@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { createUser } from "../db/userQueries";
 import { createProfile } from "../db/profileQueries";
 
+//Login controller, used for local strategy
 export const loginController = (
   req: Request,
   res: Response,
@@ -17,6 +18,7 @@ export const loginController = (
   }
 };
 
+//Checks of a user is logged in
 export const protectedRouteController = (
   req: Request,
   res: Response,
@@ -31,6 +33,7 @@ export const protectedRouteController = (
   }
 };
 
+//Register a new user and log them in
 export const registerUserController = async (
   req: Request,
   res: Response,
@@ -48,7 +51,7 @@ export const registerUserController = async (
     //token generation for immidiate login
     const token = generateToken(newUser);
 
-    res.status(201).json({ message: "User created successfully", token });
+    res.status(201).json({ message: "User created successfully", token, newProfile, newUser });
   } catch (error: any) {
     if (error.code === "P2002") {
       res.status(409).json({ message: "Username or email already taken" });

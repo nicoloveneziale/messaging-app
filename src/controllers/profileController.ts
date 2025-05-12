@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { getProfile, updateProfile } from "../db/profileQueries";
 
+//Gets a user profile from their id
 export const getProfileController = async (
   req: Request,
   res: Response,
@@ -16,6 +17,7 @@ export const getProfileController = async (
   }
 };
 
+//Updates a user profile
 export const updateProfileController = async (
   req: Request,
   res: Response,

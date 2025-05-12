@@ -8,6 +8,7 @@ interface AuthenticatedRequest extends Request {
   userId?: number;
 }
 
+// Checks for a valid JWT token in the header and sets the userId in the request
 export const authenticate: RequestHandler = async (
   req: AuthenticatedRequest,
   res: Response,
@@ -33,6 +34,7 @@ export const authenticate: RequestHandler = async (
   }
 };
 
+//Checks if the user is the owner of the profile they are trying to update
 export const authoriseProfileUpdate: RequestHandler = async (
   req: AuthenticatedRequest,
   res: Response,
