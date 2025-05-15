@@ -11,17 +11,17 @@ passport.use(
   new LocalStrategy(async (username: string, password: string, done: any) => {
     try {
       const user = await findUserByUsername(username);
-
+      
       if (!user) {
         return done(null, false, { message: "Incorrect username." });
       }
-
+      
       const passwordMatch = await bcrypt.compare(password, user.password);
-
+      
       if (!passwordMatch) {
         return done(null, false, { message: "Incorrect password." });
       }
-
+      console.log(password)
       return done(null, user);
     } catch (error) {
       console.error("Error during login:", error);

@@ -4,6 +4,7 @@ import {Server as SocketIOServer} from "socket.io";
 import router from "./routes/indexRouter";
 import passport from "passport";
 import bodyParser from "body-parser";
+import cors from "cors"; 
 import dotenv from "dotenv";
 dotenv.config();
 import "./config/passportConfig";
@@ -19,7 +20,7 @@ const httpServer = createServer(app);
 //Socket.io setup
 const io = new SocketIOServer(httpServer, {
   cors: {
-  origin: "hhtps://localhost:3000",
+  origin: "hhtp://localhost:5173",
   methods: ["GET", "POST"],
   credentials: true,
   }
@@ -28,6 +29,11 @@ const io = new SocketIOServer(httpServer, {
 initializeSocketIO(io);
 
 //Express middleware
+app.use(cors({ 
+  origin: "http://localhost:5173", 
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true, 
+}));
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
