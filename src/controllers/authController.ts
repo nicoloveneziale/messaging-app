@@ -40,7 +40,7 @@ export const registerUserController = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    console.log(req.body);
+  
     const { username, email, password } = req.body;
     //hash password for new user
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -52,13 +52,34 @@ export const registerUserController = async (
     const token = generateToken(newUser);
 
     res.status(201).json({ message: "User created successfully", token, newProfile, newUser });
+    return;
   } catch (error: any) {
     if (error.code === "P2002") {
       res.status(409).json({ message: "Username or email already taken" });
+      return;
     }
     console.error("Error registering user:", error);
     res
       .status(500)
       .json({ message: "Internal server error", error: error.message });
+      return;
   }
+};
+
+export const verifyTokenController = (req: Request, res: Response) => {
+    if (req.user) {
+        const user = req.user as any; 
+        res.status(200).json({
+            message: 'Token is valid',
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+            }
+        });
+        return;
+    } else {
+        res.status(401).json({ message: 'Unauthorized: Invalid or expired token.' });
+        return;
+    }
 };

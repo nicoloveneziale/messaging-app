@@ -4,6 +4,7 @@ import {
   loginController,
   protectedRouteController,
   registerUserController,
+  verifyTokenController,
 } from "../controllers/authController";
 
 const router = express.Router();
@@ -19,5 +20,6 @@ router.get(
   protectedRouteController,
 );
 router.post("/register", registerUserController);
+router.get("/verify", passport.authenticate("jwt", { session: false }), verifyTokenController )
 
 export default router;
