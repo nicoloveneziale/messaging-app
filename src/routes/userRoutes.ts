@@ -8,6 +8,6 @@ import {
 
 const router = express.Router();
 
-router.get("/user/:username", authenticate, searchUserController);
+router.get("/:username", authenticate, searchUserController);
 
 export default router;

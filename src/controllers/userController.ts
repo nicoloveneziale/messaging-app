@@ -4,7 +4,7 @@ interface AuthenticatedRequest extends Request {
   userId?: number;
 }
 
-//Gets all messages for a conversation
+//Searches for a user by username
 export const searchUserController = async (
   req: AuthenticatedRequest,
   res: Response,

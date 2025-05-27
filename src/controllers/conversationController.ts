@@ -22,7 +22,7 @@ export const createConversationController = async (
 ) => {
   const { participantIds, isGroupChat, name } = req.body;
   const authenticatedUserId = req.userId;
-
+  
   //Checks if user creating the conversation is authorised
   if (!authenticatedUserId) {
     res.status(401).json({ message: "User not authenticated" });
@@ -47,14 +47,15 @@ export const createConversationController = async (
         message:
           "Direct message must have exactly two participants (including yourself)",
       });
+      return;
     }
     //Users cant dm themselves
     if (participantIds[0] === participantIds[1]) {
       res
         .status(400)
         .json({ message: "Cannot create a direct message with yourself" });
+        return;
     }
-    return;
   }
 
   //Checks for existing DM
@@ -78,7 +79,7 @@ export const createConversationController = async (
     }
   }
 
-  //Create amd return conversation
+  //Create and return conversation
   try {
     const conversation = await createConversation(
       participantIds,
