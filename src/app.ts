@@ -20,7 +20,7 @@ const httpServer = createServer(app);
 //Socket.io setup
 const io = new SocketIOServer(httpServer, {
   cors: {
-  origin: "hhtp://localhost:5173",
+  origin: "http://localhost:5173",
   methods: ["GET", "POST"],
   credentials: true,
   }

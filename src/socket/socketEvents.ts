@@ -2,6 +2,7 @@ import { Server, Socket } from "socket.io";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import { sendMessage, isUserParticipant } from "../db/conversationQueries";
+import { findUserById } from "../db/userQueries";
 
 const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET || "secret-key";
 
@@ -101,6 +102,29 @@ export const initializeSocketIO = (io: Server) => {
                 if (callback) callback("error", "Server error while sending message.");
             }
         })
+
+        //Client is typing
+        socket.on("typing:start", async (conversationId: number) => {
+            if (!socket.userId) {
+                return;
+            } 
+            const user = await findUserById(socket.userId);
+            if (!socket.userId || isNaN(conversationId)) return;
+            socket.to(conversationId.toString()).emit("typing:start", {
+                conversationId: conversationId,
+                userId: socket.userId,
+                username: user?.username
+            });
+        });
+
+        //Client stops typing
+        socket.on("typing:stop", (conversationId: number) => {
+            if (!socket.userId || isNaN(conversationId)) return;
+            socket.to(conversationId.toString()).emit("typing:stop", {
+                conversationId: conversationId,
+                userId: socket.userId
+            });
+        });
 
         //Client disconnects from the socket
         socket.on("disconnect", () => {
