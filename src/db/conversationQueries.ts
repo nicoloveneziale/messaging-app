@@ -96,6 +96,7 @@ export const getAllConversations = async (userId: number) => {
             select: {
               id: true,
               username: true,
+              profileId: true,
               profile: {
                 select: {avatarUrl: true}
               }
@@ -128,6 +129,7 @@ export const getConversationMessages = async (conversationId: number, authentica
         select: {
           id: true,
           username: true,
+          profileId: true,
           profile: {
             select: {avatarUrl: true}
           }

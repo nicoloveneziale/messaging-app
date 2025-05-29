@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { generateToken } from "../config/passportConfig";
 import bcrypt from "bcryptjs";
-import { createUser } from "../db/userQueries";
+import { createUser, updateUserProfile } from "../db/userQueries";
 import { createProfile } from "../db/profileQueries";
 
 //Login controller, used for local strategy
@@ -48,6 +48,8 @@ export const registerUserController = async (
     const newUser = await createUser(username, email, hashedPassword);
     //create a profile for the new user
     const newProfile = await createProfile(newUser.id);
+    //Updates the users profile
+    const user = await updateUserProfile(newUser.id, newProfile.id);
     //token generation for immidiate login
     const token = generateToken(newUser);
 
