@@ -180,6 +180,23 @@ export const sendMessage = async (conversationId: number, senderId: number, cont
   })
 }
 
+//Updates last message in a conversation
+export const updateLastMessage = async (conversationId: number, messageId: number) => {
+  try{
+    const conversation = prisma.conversation.update({
+        where: {
+          id: conversationId,
+        },
+        data: {
+          lastMessageId: messageId
+        }
+      });
+      return conversation;
+    } catch (error) {
+      console.log(error);
+    }
+}
+
 //Deletes a message in a conversation
 export const deleteMessage = async (messageId: number) => {
   return prisma.message.delete({

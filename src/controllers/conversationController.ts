@@ -9,6 +9,7 @@ import {
   deleteMessage,
   getMessage,
   deleteConversation,
+  updateLastMessage,
 } from "../db/conversationQueries";
 
 interface AuthenticatedRequest extends Request {
@@ -163,7 +164,8 @@ export const sendMessageController = async (
     } 
 
     const message = await sendMessage(conversationId, authenticatedUserId, content);
-    res.status(201).json({ message: message });
+    const conversation = await updateLastMessage(conversationId, message.id);
+    res.status(201).json({ message: message, conversation: conversation });
   } catch (error) {
     console.error("Error sending message:", error); 
     next(error);

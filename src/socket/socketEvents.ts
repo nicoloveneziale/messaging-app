@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
-import { sendMessage, isUserParticipant } from "../db/conversationQueries";
+import { sendMessage, isUserParticipant, updateLastMessage } from "../db/conversationQueries";
 import { findUserById } from "../db/userQueries";
 
 const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET || "secret-key";
@@ -67,7 +67,7 @@ export const initializeSocketIO = (io: Server) => {
         })
 
         //Client sends a message in a conversation
-        socket.on("message:send", async (data: { conversationId: number; content: string }, callback?: (status: 'success' | 'error', message?: string, newMessage?: any) => void) => { 
+        socket.on("message:send", async (data: { conversationId: number; content: string }, callback?: (status: 'success' | 'error', message?: string, newMessage?: any, newConversation?: any) => void) => { 
             if (!socket.userId) {
                  if (callback) callback("error", "User not authenticated.");
                 return;
@@ -90,12 +90,12 @@ export const initializeSocketIO = (io: Server) => {
 
                 //Send the message to the database
                 const newMessage = await sendMessage(conversationId, socket.userId, content);
-
+                const newConversation = await updateLastMessage(conversationId,newMessage.id);
                 //Emit the new message to everyone in the conversation room
-                io.to(conversationId.toString()).emit("message:new", newMessage);
+                io.to(conversationId.toString()).emit("message:new", newMessage, newConversation);
                 console.log(`User ${socket.userId} sent message to conversation ${conversationId}: "${content}"`);
 
-                if (callback) callback("success", "Message sent.", newMessage);
+                if (callback) callback("success", "Message sent.", newMessage, newConversation);
 
             } catch (error) {
                 console.error(`Error sending message to conversation ${conversationId} for user ${socket.userId}:`, error);
