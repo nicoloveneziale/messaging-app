@@ -8,6 +8,9 @@ const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET || "secret-key";
 
 const prisma = new PrismaClient();
 
+const onlineUsers = new Set<number>();
+
+
 // Extend Socket type to include userId after authentication
 interface AuthenticatedSocket extends Socket {
   userId?: number;
@@ -38,6 +41,13 @@ export const initializeSocketIO = (io: Server) => {
     //Socket connection event
     io.on("connection", (socket: AuthenticatedSocket) => {
         console.log("User connected:", socket.userId, "Socket ID:", socket.id);
+
+        if (socket.userId && !onlineUsers.has(socket.userId)) {
+            onlineUsers.add(socket.userId); 
+            socket.emit('initial_online_users', Array.from(onlineUsers));
+            io.emit('user:status', { userId: socket.userId, status: 'online' });
+            console.log(`User ${socket.userId} is now online.`);
+        }
 
         //Client joins a conversation
         socket.on("join_conversation", async (conversationId: number, callback?: (status: 'success' | 'error', message?: string) => void) => {
@@ -129,6 +139,10 @@ export const initializeSocketIO = (io: Server) => {
         //Client disconnects from the socket
         socket.on("disconnect", () => {
             console.log(`User disconnected: ${socket.userId} (Socket ID: ${socket.id})`);
+            if (socket.userId && onlineUsers.has(socket.userId)) {
+                onlineUsers.delete(socket.userId);
+                io.emit("user:status", {userId: socket.userId, status: "offline"})
+            }
         });
     } )
 }
