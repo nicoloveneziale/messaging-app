@@ -103,7 +103,7 @@ export const getAllConversations = async (userId: number) => {
             }
           }
         }
-      }
+      },
     },
     orderBy: {
       updatedAt: "desc"
@@ -223,5 +223,20 @@ export const deleteConversation = async (conversationId: number) => {
     where: {
       id: conversationId
     }
+  })
+}
+
+//Marks a conversation as read
+export const markAsRead = async (userId: number, conversationId: number) => {
+  return prisma.userConversation.update({
+    where: {
+      userId_conversationId: {
+        userId: userId,
+        conversationId: conversationId
+      }
+    },
+    data: {
+      lastReadAt: new Date(),
+    },
   })
 }

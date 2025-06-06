@@ -10,6 +10,7 @@ import {
   getMessage,
   deleteConversation,
   updateLastMessage,
+  markAsRead,
 } from "../db/conversationQueries";
 
 interface AuthenticatedRequest extends Request {
@@ -228,3 +229,21 @@ export const deleteConversationController = async(req: AuthenticatedRequest, res
   }
 
 }
+
+//Marks conversation as read for a user
+export const markAsReadController = async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  const authenticatedUserId = req.userId;
+  const conversationId = parseInt(req.params.id);
+
+    if (!authenticatedUserId) {
+    res.status(401).json({ message: "User not authenticated." });
+    return; 
+  }
+  try {
+    const updatedConversation = await markAsRead(authenticatedUserId, conversationId);
+    res.status(200).json({userConversation: updatedConversation})
+  } catch (error){
+    console.log(error);
+    res.status(500).json({ message: 'Failed to mark conversation as read.', error });
+  }
+} 

@@ -1,6 +1,6 @@
 import express from "express";
 import { authenticate } from "../middleware/authMiddleware";
-import { createConversationController, getAllConversationsController, getConversationMessagesController, sendMessageController, deleteMessageController, deleteConversationController } from "../controllers/conversationController";
+import { createConversationController, getAllConversationsController, getConversationMessagesController, sendMessageController, deleteMessageController, deleteConversationController, markAsReadController } from "../controllers/conversationController";
 
 const router = express.Router();
 
@@ -16,5 +16,8 @@ router.get("/:id/messages", authenticate,getConversationMessagesController);
 router.post("/:id/messages", authenticate, sendMessageController);
 //Delete a message in a conversation
 router.delete("/:id/messages/:messageId", authenticate, deleteMessageController)
+//Mark conversation as read
+router.put("/:id/read", authenticate, markAsReadController);
+
 
 export default router;
