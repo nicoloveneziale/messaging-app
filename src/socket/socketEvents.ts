@@ -40,7 +40,6 @@ export const initializeSocketIO = (io: Server) => {
 
     //Socket connection event
     io.on("connection", (socket: AuthenticatedSocket) => {
-        console.log("User connected:", socket.userId, "Socket ID:", socket.id);
 
         if (socket.userId && !onlineUsers.has(socket.userId)) {
             onlineUsers.add(socket.userId); 
@@ -103,8 +102,7 @@ export const initializeSocketIO = (io: Server) => {
                 const newConversation = await updateLastMessage(conversationId,newMessage.id);
                 //Emit the new message to everyone in the conversation room
                 io.to(conversationId.toString()).emit("message:new", newMessage, newConversation);
-                console.log(`User ${socket.userId} sent message to conversation ${conversationId}: "${content}"`);
-
+                
                 if (callback) callback("success", "Message sent.", newMessage, newConversation);
 
             } catch (error) {

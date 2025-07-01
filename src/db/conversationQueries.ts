@@ -228,15 +228,21 @@ export const deleteConversation = async (conversationId: number) => {
 
 //Marks a conversation as read
 export const markAsRead = async (userId: number, conversationId: number) => {
-  return prisma.userConversation.update({
+  return prisma.userConversation.upsert({
     where: {
-      userId_conversationId: {
+      userId_conversationId: { 
         userId: userId,
-        conversationId: conversationId
-      }
+        conversationId: conversationId,
+      },
     },
-    data: {
+    update: { 
       lastReadAt: new Date(),
     },
-  })
-}
+    create: { 
+      userId: userId,
+      conversationId: conversationId,
+      joinedAt: new Date(),
+      lastReadAt: new Date(),
+    },
+  });
+};
